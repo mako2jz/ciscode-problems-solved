@@ -1,0 +1,115 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+#define VHSIZE 50
+
+typedef struct {
+    int data;
+} Element;
+
+typedef struct {
+    Element elem;
+    int next;
+} Node;
+
+typedef struct {
+    Node VHNode[VHSIZE];
+    int avail;
+} VHeap;
+
+typedef int Stack;  // index of top element
+
+
+/*************************************/
+/*           YOUR TASKS              */
+/*************************************/
+// --- CB functions --- //
+void initVHeap(VHeap *VH);
+int allocSpace(VHeap *VH);
+void freeSpace(VHeap *VH, int idx);
+
+// --- Stack functions ---
+void initStack(Stack *S);
+void insertSorted(VHeap *VH, Stack *S, int data);
+void printStack(VHeap VH, Stack S);
+
+// --- Main program ---
+int main() {
+    VHeap VH;
+    Stack S;
+    int N, val;
+
+    initVHeap(&VH);
+    initStack(&S);
+
+    printf("Enter size: ");
+    scanf("%d", &N);
+
+    for (int i = 0; i < N; i++) {
+        printf("Enter element %d: ", i + 1);
+        scanf("%d", &val);
+        insertSorted(&VH, &S, val);
+    }
+
+    printStack(VH, S);
+
+    return 0;
+}
+
+void initVHeap(VHeap *VH) {
+    // Implementation here...
+    int i;
+    for(i = 0; i < VHSIZE - 1; i++){
+        VH->VHNode[i].next = i + 1;
+    }
+    VH->VHNode[VHSIZE-1].next = -1;
+    VH->avail = 0;
+}
+
+int allocSpace(VHeap *VH) {
+    // Implementation here...
+    int idx = -1;
+    if(VH->avail != -1){
+        idx = VH->avail;
+        VH->avail = VH->VHNode[VH->avail].next;
+    }
+    return idx;
+}
+
+void freeSpace(VHeap *VH, int idx) {
+    // Implementation here...
+    if(idx != -1){
+        VH->VHNode[idx].next = VH->avail;
+        VH->avail = idx;
+    }
+}
+
+// --- Stack functions ---
+void initStack(Stack *S) {
+    // Implementation here...
+    *S = -1;
+}
+
+void insertSorted(VHeap *VH, Stack *S, int data) {
+    // Implementation here...
+    int temp = allocSpace(VH);
+    VH->VHNode[temp].elem.data = data;
+    VH->VHNode[temp].next = -1;
+    if(*S == -1){
+        *S = temp;
+    } else {
+        Stack *ptr;
+        for(ptr = S; *ptr != -1 && data > VH->VHNode[*ptr].elem.data; ptr = &(VH->VHNode[*ptr].next)){}
+        VH->VHNode[temp].next = *ptr;
+        *ptr = temp;
+    }
+}
+
+void printStack(VHeap VH, Stack S) {
+    // Implementation here...
+    Stack ptr;
+    printf("Sorted Stack: ");
+    for(ptr = S; ptr != -1; ptr = VH.VHNode[ptr].next){
+        printf("%d ", VH.VHNode[ptr].elem.data);
+    }
+}
